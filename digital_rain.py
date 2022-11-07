@@ -181,7 +181,6 @@ def init_curses() -> t.Any:
     curses.use_default_colors()
     curses.init_pair(1, curses.COLOR_GREEN, curses.COLOR_BLACK)
 
-    signal.signal(signal.SIGINT, lambda signal, frame: terminate_curses(screen))
 
     return screen
 
@@ -237,6 +236,7 @@ def main(
     digital_rain = None
 
     screen = init_curses()
+    signal.signal(signal.SIGINT, lambda signal, frame: terminate_curses(screen))
     height, width = screen.getmaxyx()
 
     if use_camera:
