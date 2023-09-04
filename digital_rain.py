@@ -27,18 +27,20 @@ class AsciiImage:
         self.size = width, height
 
     def convert(self, image: Image) -> str:
-
+        """DOCSTRING"""
         image = cv2.resize(image, self.size)
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-        return "".join(self.ASCII_CHARS[pixel // self.bin_size] for pixel in gray.flatten())
+        return "".join(
+            self.ASCII_CHARS[pixel // self.bin_size] for pixel in gray.flatten()
+        )
 
     def convert_with_linebreak(self, image: Image) -> str:
-
+        """DOCSTRING"""
         image = cv2.resize(image, self.size)
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-        last_col = size[0] - 1
+        last_col = self.size[0] - 1
         ascii_str = ""
         for (_, x), pixel in np.ndenumerate(gray):  # pylint: disable=C0103
             ascii_str += self.ASCII_CHARS[pixel // self.bin_size]
@@ -49,25 +51,26 @@ class AsciiImage:
 
 class Selfie:
     """
-      Draw selfie segmentation on the background image.
+     Draw selfie segmentation on the background image.
 
-     The background can be customized.
-       a) Load an image (with the same width and height of the input image)
-          to be the background
-       b) Blur the input image by applying image filtering, e.g.,
-          bg_image = cv2.GaussianBlur(image,(55,55),0)
+    The background can be customized.
+      a) Load an image (with the same width and height of the input image)
+         to be the background
+      b) Blur the input image by applying image filtering, e.g.,
+         bg_image = cv2.GaussianBlur(image,(55,55),0)
     """
+
     def __init__(self):
         self.segmentation = None
         self.bg_image: t.Optional[Image] = None
 
-    def  __enter__(self):
+    def __enter__(self):
         self.segmentation = SelfieSegmentation(model_selection=1)
         self.segmentation.__enter__()
         return self
 
-    def  __exit__(self, type, value, traceback):
-        self.segmentation.__exit__(type, value, traceback)
+    def __exit__(self, type_, value, traceback):
+        self.segmentation.__exit__(type_, value, traceback)
 
     def process_image(self, image):
         """Segement human from image and draw on background"""
@@ -90,7 +93,7 @@ class Selfie:
 
 
 class DigitalRain:
-    """TODO"""
+    """DOCSTRING"""
 
     def __init__(self, height, width, letters, probability, updates_per_second):
         self.height = height
@@ -118,7 +121,7 @@ class DigitalRain:
         self.bg_refresh_counter = randint(3, 7)
 
     def apply(self, screen):
-        """TODO"""
+        """DOCSTRING"""
 
         now = perf_counter()
         self.updates += (now - self.start_time) * self.updates_per_second
@@ -181,22 +184,24 @@ def init_curses() -> t.Any:
     curses.use_default_colors()
     curses.init_pair(1, curses.COLOR_GREEN, curses.COLOR_BLACK)
 
-
     return screen
 
 
 def terminate_curses(screen: t.Any) -> None:
+    """DOCSTRING"""
     screen.keypad(False)
     curses.echo()
     curses.endwin()
 
 
 def terminate_camera(stream: t.Any) -> None:
+    """DOCSTRING"""
     if stream:
         stream.release()
 
 
 def process_camera(stream, ascii_image, screen, selfie):
+    """DOCSTRING"""
     success, image = stream.read()
     if not success:
         return
@@ -220,11 +225,9 @@ def process_camera(stream, ascii_image, screen, selfie):
 
 def main(
     camera: int = 0,  # help="The camera index.",
-
     letters: int = 2,  # help="Characters produced per update.",
     probability: int = 5,  # help="1/p probability of a droplet deactivating each tick.",
     updates_per_second: int = 15,  # help="The number of updates to perform per second.",
-
     use_camera: bool = True,
     segment: bool = True,
     rain: bool = True,
@@ -248,7 +251,9 @@ def main(
             return
 
     if rain:
-        digital_rain = DigitalRain(height, width, letters, probability, updates_per_second)
+        digital_rain = DigitalRain(
+            height, width, letters, probability, updates_per_second
+        )
 
     with Selfie() as selfie:
         while True:
